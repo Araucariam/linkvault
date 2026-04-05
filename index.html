@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="LinkVault - Gestionnaire de liens et notes intelligent" />
+  <meta name="theme-color" content="#6c63ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="LinkVault" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="LinkVault" />
+  <meta property="og:description" content="Gestionnaire de liens et notes intelligent" />
+  <meta property="og:type" content="website" />
+
+  <title>LinkVault</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- OVERLAY Sidebar -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ======= SIDEBAR ======= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="material-icons-outlined logo-icon">hub</span>
+        <span class="logo-text">LinkVault</span>
+      </div>
+      <button class="btn-icon sidebar-close" id="sidebarClose" aria-label="Fermer le menu">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <span class="nav-label">Navigation</span>
+        <a href="#" class="nav-item active" data-view="all">
+          <span class="material-icons-outlined">dashboard</span>
+          <span>Tableau de bord</span>
+          <span class="nav-badge" id="badgeAll">0</span>
+        </a>
+        <a href="#" class="nav-item" data-view="links">
+          <span class="material-icons-outlined">link</span>
+          <span>Liens</span>
+          <span class="nav-badge" id="badgeLinks">0</span>
+        </a>
+        <a href="#" class="nav-item" data-view="notes">
+          <span class="material-icons-outlined">sticky_note_2</span>
+          <span>Notes</span>
+          <span class="nav-badge" id="badgeNotes">0</span>
+        </a>
+        <a href="#" class="nav-item" data-view="favorites">
+          <span class="material-icons-outlined">bookmark</span>
+          <span>Favoris</span>
+          <span class="nav-badge" id="badgeFavorites">0</span>
+        </a>
+        <a href="#" class="nav-item" data-view="tags">
+          <span class="material-icons-outlined">label</span>
+          <span>Tags</span>
+        </a>
+        <a href="#" class="nav-item" data-view="trash">
+          <span class="material-icons-outlined">delete_outline</span>
+          <span>Corbeille</span>
+          <span class="nav-badge" id="badgeTrash">0</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">Collections</span>
+        <div class="collections-list" id="collectionsList">
+          <!-- Collections dynamiques -->
+        </div>
+        <button class="btn-add-collection" id="btnAddCollection">
+          <span class="material-icons-outlined">add_circle_outline</span>
+          <span>Nouvelle collection</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="storage-info">
+        <span class="material-icons-outlined">storage</span>
+        <div class="storage-details">
+          <span class="storage-label">Stockage local</span>
+          <div class="storage-bar">
+            <div class="storage-fill" id="storageFill"></div>
+          </div>
+          <span class="storage-size" id="storageSize">0 Ko utilisés</span>
+        </div>
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="sidebar-action-btn" id="btnExport" title="Exporter">
+          <span class="material-icons-outlined">upload</span>
+          <span>Exporter</span>
+        </button>
+        <button class="sidebar-action-btn" id="btnImport" title="Importer">
+          <span class="material-icons-outlined">download</span>
+          <span>Importer</span>
+        </button>
+        <button class="sidebar-action-btn" id="btnSettings" title="Paramètres">
+          <span class="material-icons-outlined">settings</span>
+          <span>Paramètres</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======= MAIN ======= -->
+  <main class="main-content" id="mainContent">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn-icon hamburger" id="hamburgerBtn" aria-label="Ouvrir le menu">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+        <div class="topbar-title">
+          <h1 id="viewTitle">Tableau de bord</h1>
+          <span class="view-subtitle" id="viewSubtitle">Tous vos liens et notes</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-icon" id="btnSearch" aria-label="Rechercher">
+          <span class="material-icons-outlined">search</span>
+        </button>
+        <button class="btn-icon" id="btnSort" aria-label="Trier">
+          <span class="material-icons-outlined">sort</span>
+        </button>
+        <button class="btn-icon" id="btnToggleView" aria-label="Changer la vue" title="Vue grille/liste">
+          <span class="material-icons-outlined">grid_view</span>
+        </button>
+        <button class="btn-icon theme-toggle" id="themeToggle" aria-label="Changer le thème">
+          <span class="material-icons-outlined">light_mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- SEARCH BAR -->
+    <div class="search-container" id="searchContainer">
+      <div class="search-box">
+        <span class="material-icons-outlined">search</span>
+        <input type="text" id="searchInput" placeholder="Rechercher liens, notes, tags..." autocomplete="off" />
+        <button class="btn-icon search-clear" id="searchClear">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+      <div class="search-filters">
+        <button class="filter-chip active" data-filter="all">Tout</button>
+        <button class="filter-chip" data-filter="links">Liens</button>
+        <button class="filter-chip" data-filter="notes">Notes</button>
+        <button class="filter-chip" data-filter="favorites">Favoris</button>
+      </div>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-item">
+        <span class="material-icons-outlined">link</span>
+        <span id="statLinks">0 liens</span>
+      </div>
+      <div class="stat-item">
+        <span class="material-icons-outlined">sticky_note_2</span>
+        <span id="statNotes">0 notes</span>
+      </div>
+      <div class="stat-item">
+        <span class="material-icons-outlined">bookmark</span>
+        <span id="statFavorites">0 favoris</span>
+      </div>
+      <div class="stat-item">
+        <span class="material-icons-outlined">label</span>
+        <span id="statTags">0 tags</span>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content-area" id="contentArea">
+      <!-- Dynamique via JS -->
+    </div>
+
+    <!-- FAB SPEED DIAL -->
+    <div class="fab-container" id="fabContainer">
+      <div class="fab-options" id="fabOptions">
+        <button class="fab-option" id="fabAddLink">
+          <span class="material-icons-outlined">add_link</span>
+          <span class="fab-label">Ajouter un lien</span>
+        </button>
+        <button class="fab-option" id="fabAddNote">
+          <span class="material-icons-outlined">note_add</span>
+          <span class="fab-label">Nouvelle note</span>
+        </button>
+        <button class="fab-option" id="fabAddCollection">
+          <span class="material-icons-outlined">create_new_folder</span>
+          <span class="fab-label">Nouvelle collection</span>
+        </button>
+      </div>
+      <button class="fab" id="fabMain" aria-label="Ajouter">
+        <span class="material-icons-outlined fab-icon-main">add</span>
+        <span class="material-icons-outlined fab-icon-close">close</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- ======= MODALS ======= -->
+
+  <!-- Modal Ajout/Édition LIEN -->
+  <div class="modal" id="modalLink" role="dialog" aria-labelledby="modalLinkTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 id="modalLinkTitle">
+          <span class="material-icons-outlined">add_link</span>
+          Nouveau lien
+        </h2>
+        <button class="btn-icon modal-close" data-modal="modalLink">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="linkUrl">
+            <span class="material-icons-outlined">link</span>
+            URL *
+          </label>
+          <div class="input-with-btn">
+            <input type="url" id="linkUrl" class="form-input" placeholder="https://exemple.com" required />
+            <button class="btn-icon btn-fetch" id="btnFetchMeta" title="Récupérer les infos">
+              <span class="material-icons-outlined">auto_awesome</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="linkTitle">
+            <span class="material-icons-outlined">title</span>
+            Titre *
+          </label>
+          <input type="text" id="linkTitle" class="form-input" placeholder="Titre du lien" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="linkDescription">
+            <span class="material-icons-outlined">description</span>
+            Description
+          </label>
+          <textarea id="linkDescription" class="form-input form-textarea" placeholder="Description optionnelle..." rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="linkCollection">
+              <span class="material-icons-outlined">folder_open</span>
+              Collection
+            </label>
+            <select id="linkCollection" class="form-input form-select">
+              <option value="">Sans collection</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="linkColor">
+              <span class="material-icons-outlined">palette</span>
+              Couleur
+            </label>
+            <div class="color-picker" id="linkColorPicker">
+              <div class="color-option active" data-color="#6c63ff" style="background:#6c63ff"></div>
+              <div class="color-option" data-color="#ff6584" style="background:#ff6584"></div>
+              <div class="color-option" data-color="#43d9ad" style="background:#43d9ad"></div>
+              <div class="color-option" data-color="#ffd166" style="background:#ffd166"></div>
+              <div class="color-option" data-color="#118ab2" style="background:#118ab2"></div>
+              <div class="color-option" data-color="#ef476f" style="background:#ef476f"></div>
+              <div class="color-option" data-color="#06d6a0" style="background:#06d6a0"></div>
+              <div class="color-option" data-color="#f78c6c" style="background:#f78c6c"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="linkTags">
+            <span class="material-icons-outlined">label</span>
+            Tags
+          </label>
+          <div class="tags-input-container">
+            <div class="tags-display" id="linkTagsDisplay"></div>
+            <input type="text" id="linkTags" class="form-input tags-input" placeholder="Ajouter un tag (Entrée)" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="toggle-label">
+            <span class="material-icons-outlined">bookmark</span>
+            Ajouter aux favoris
+            <label class="toggle">
+              <input type="checkbox" id="linkFavorite" />
+              <span class="toggle-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="form-group" id="linkReminderGroup">
+          <label class="form-label" for="linkReminder">
+            <span class="material-icons-outlined">alarm</span>
+            Rappel
+          </label>
+          <input type="datetime-local" id="linkReminder" class="form-input" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modalLink">Annuler</button>
+        <button class="btn btn-primary" id="btnSaveLink">
+          <span class="material-icons-outlined">save</span>
+          Sauvegarder
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ajout/Édition NOTE -->
+  <div class="modal" id="modalNote" role="dialog" aria-labelledby="modalNoteTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container modal-large">
+      <div class="modal-header">
+        <h2 id="modalNoteTitle">
+          <span class="material-icons-outlined">note_add</span>
+          Nouvelle note
+        </h2>
+        <div class="modal-header-actions">
+          <button class="btn-icon" id="btnNoteFullscreen" title="Plein écran">
+            <span class="material-icons-outlined">fullscreen</span>
+          </button>
+          <button class="btn-icon modal-close" data-modal="modalNote">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <input type="text" id="noteTitle" class="form-input note-title-input" placeholder="Titre de la note..." />
+        </div>
+
+        <!-- Toolbar éditeur -->
+        <div class="editor-toolbar">
+          <button class="toolbar-btn" data-format="bold" title="Gras">
+            <span class="material-icons-outlined">format_bold</span>
+          </button>
+          <button class="toolbar-btn" data-format="italic" title="Italique">
+            <span class="material-icons-outlined">format_italic</span>
+          </button>
+          <button class="toolbar-btn" data-format="underline" title="Souligné">
+            <span class="material-icons-outlined">format_underlined</span>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn" data-format="h1" title="Titre 1">H1</button>
+          <button class="toolbar-btn" data-format="h2" title="Titre 2">H2</button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn" data-format="ul" title="Liste">
+            <span class="material-icons-outlined">format_list_bulleted</span>
+          </button>
+          <button class="toolbar-btn" data-format="ol" title="Liste numérotée">
+            <span class="material-icons-outlined">format_list_numbered</span>
+          </button>
+          <button class="toolbar-btn" data-format="checklist" title="Liste de tâches">
+            <span class="material-icons-outlined">checklist</span>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn" data-format="code" title="Code">
+            <span class="material-icons-outlined">code</span>
+          </button>
+          <button class="toolbar-btn" data-format="quote" title="Citation">
+            <span class="material-icons-outlined">format_quote</span>
+          </button>
+          <button class="toolbar-btn" data-format="link" title="Lien">
+            <span class="material-icons-outlined">insert_link</span>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn" id="btnNotePreview" title="Aperçu">
+            <span class="material-icons-outlined">preview</span>
+          </button>
+        </div>
+
+        <div class="editor-container">
+          <textarea id="noteContent" class="form-input note-editor" placeholder="Écrivez votre note ici... (Markdown supporté)" rows="12"></textarea>
+          <div class="note-preview hidden" id="notePreview"></div>
+        </div>
+
+        <div class="word-count" id="wordCount">0 mots · 0 caractères</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="noteCollection">
+              <span class="material-icons-outlined">folder_open</span>
+              Collection
+            </label>
+            <select id="noteCollection" class="form-input form-select">
+              <option value="">Sans collection</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span class="material-icons-outlined">palette</span>
+              Couleur
+            </label>
+            <div class="color-picker" id="noteColorPicker">
+              <div class="color-option active" data-color="#6c63ff" style="background:#6c63ff"></div>
+              <div class="color-option" data-color="#ff6584" style="background:#ff6584"></div>
+              <div class="color-option" data-color="#43d9ad" style="background:#43d9ad"></div>
+              <div class="color-option" data-color="#ffd166" style="background:#ffd166"></div>
+              <div class="color-option" data-color="#118ab2" style="background:#118ab2"></div>
+              <div class="color-option" data-color="#ef476f" style="background:#ef476f"></div>
+              <div class="color-option" data-color="#06d6a0" style="background:#06d6a0"></div>
+              <div class="color-option" data-color="#f78c6c" style="background:#f78c6c"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="noteTags">
+            <span class="material-icons-outlined">label</span>
+            Tags
+          </label>
+          <div class="tags-input-container">
+            <div class="tags-display" id="noteTagsDisplay"></div>
+            <input type="text" id="noteTags" class="form-input tags-input" placeholder="Ajouter un tag (Entrée)" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="toggle-label">
+              <span class="material-icons-outlined">bookmark</span>
+              Favoris
+              <label class="toggle">
+                <input type="checkbox" id="noteFavorite" />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="toggle-label">
+              <span class="material-icons-outlined">lock</span>
+              Épingler
+              <label class="toggle">
+                <input type="checkbox" id="notePin" />
+                <span class="toggle-slider"></span>
+              </label>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modalNote">Annuler</button>
+        <button class="btn btn-primary" id="btnSaveNote">
+          <span class="material-icons-outlined">save</span>
+          Sauvegarder
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Collection -->
+  <div class="modal" id="modalCollection" role="dialog">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container modal-small">
+      <div class="modal-header">
+          <h2 id="modalCollectionTitle">
+            <span class="material-icons-outlined">create_new_folder</span>
+            Nouvelle collection
+          </h2>
+        <button class="btn-icon modal-close" data-modal="modalCollection">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="collectionName">Nom de la collection *</label>
+          <input type="text" id="collectionName" class="form-input" placeholder="Ex: Développement, Lecture..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Icône</label>
+          <div class="icon-picker" id="collectionIconPicker">
+            <div class="icon-option active" data-icon="folder">
+              <span class="material-icons-outlined">folder</span>
+            </div>
+            <div class="icon-option" data-icon="code">
+              <span class="material-icons-outlined">code</span>
+            </div>
+            <div class="icon-option" data-icon="school">
+              <span class="material-icons-outlined">school</span>
+            </div>
+            <div class="icon-option" data-icon="work">
+              <span class="material-icons-outlined">work</span>
+            </div>
+            <div class="icon-option" data-icon="favorite">
+              <span class="material-icons-outlined">favorite</span>
+            </div>
+            <div class="icon-option" data-icon="movie">
+              <span class="material-icons-outlined">movie</span>
+            </div>
+            <div class="icon-option" data-icon="music_note">
+              <span class="material-icons-outlined">music_note</span>
+            </div>
+            <div class="icon-option" data-icon="sports_esports">
+              <span class="material-icons-outlined">sports_esports</span>
+            </div>
+            <div class="icon-option" data-icon="shopping_cart">
+              <span class="material-icons-outlined">shopping_cart</span>
+            </div>
+            <div class="icon-option" data-icon="travel_explore">
+              <span class="material-icons-outlined">travel_explore</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Couleur</label>
+          <div class="color-picker" id="collectionColorPicker">
+            <div class="color-option active" data-color="#6c63ff" style="background:#6c63ff"></div>
+            <div class="color-option" data-color="#ff6584" style="background:#ff6584"></div>
+            <div class="color-option" data-color="#43d9ad" style="background:#43d9ad"></div>
+            <div class="color-option" data-color="#ffd166" style="background:#ffd166"></div>
+            <div class="color-option" data-color="#118ab2" style="background:#118ab2"></div>
+            <div class="color-option" data-color="#ef476f" style="background:#ef476f"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modalCollection">Annuler</button>
+        <button class="btn btn-primary" id="btnSaveCollection">
+          <span class="material-icons-outlined">save</span>
+          Créer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Paramètres -->
+  <div class="modal" id="modalSettings" role="dialog">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>
+          <span class="material-icons-outlined">settings</span>
+          Paramètres
+        </h2>
+        <button class="btn-icon modal-close" data-modal="modalSettings">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body settings-body">
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">
+            <span class="material-icons-outlined">palette</span>
+            Apparence
+          </h3>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">Mode sombre</span>
+              <span class="setting-desc">Activer le thème sombre</span>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="settingDarkMode" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">Vue par défaut</span>
+              <span class="setting-desc">Grille ou liste</span>
+            </div>
+            <select class="form-input setting-select" id="settingDefaultView">
+              <option value="grid">Grille</option>
+              <option value="list">Liste</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">Accent couleur</span>
+            </div>
+            <div class="color-picker">
+              <div class="color-option active" data-color="#6c63ff" style="background:#6c63ff" id="accentColor1"></div>
+              <div class="color-option" data-color="#ff6584" style="background:#ff6584" id="accentColor2"></div>
+              <div class="color-option" data-color="#43d9ad" style="background:#43d9ad" id="accentColor3"></div>
+              <div class="color-option" data-color="#ffd166" style="background:#ffd166" id="accentColor4"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">
+            <span class="material-icons-outlined">import_export</span>
+            Données
+          </h3>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">Exporter les données</span>
+              <span class="setting-desc">JSON, CSV ou Markdown</span>
+            </div>
+            <div class="export-options">
+              <button class="btn btn-small btn-outline" id="exportJSON">JSON</button>
+              <button class="btn btn-small btn-outline" id="exportCSV">CSV</button>
+              <button class="btn btn-small btn-outline" id="exportMD">MD</button>
+            </div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">Importer des données</span>
+              <span class="setting-desc">Depuis un fichier JSON</span>
+            </div>
+            <button class="btn btn-small btn-outline" id="importDataBtn">
+              <span class="material-icons-outlined">upload_file</span>
+              Choisir
+            </button>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">Vider la corbeille</span>
+              <span class="setting-desc">Supprimer définitivement</span>
+            </div>
+            <button class="btn btn-small btn-danger" id="emptyTrashBtn">
+              <span class="material-icons-outlined">delete_forever</span>
+              Vider
+            </button>
+          </div>
+          <div class="setting-item danger-zone">
+            <div class="setting-info">
+              <span class="setting-name">Réinitialiser</span>
+              <span class="setting-desc">Supprimer toutes les données</span>
+            </div>
+            <button class="btn btn-small btn-danger" id="resetDataBtn">
+              <span class="material-icons-outlined">warning</span>
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">
+            <span class="material-icons-outlined">sync</span>
+            Synchronisation
+          </h3>
+          <div class="sync-info-box">
+            <span class="material-icons-outlined">info</span>
+            <div>
+              <strong>Sync multi-appareils</strong>
+              <p>Utilisez l'export/import JSON ou configurez une sync via GitHub Gist, Dropbox ou votre propre serveur.</p>
+              <button class="btn btn-small btn-outline" id="btnSyncGuide">
+                Voir le guide
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3 class="settings-section-title">
+            <span class="material-icons-outlined">info</span>
+            À propos
+          </h3>
+          <div class="about-info">
+            <div class="app-version">
+              <span class="material-icons-outlined logo-icon">hub</span>
+              <div>
+                <strong>LinkVault v2.0</strong>
+                <p>Gestionnaire de liens et notes PWA</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sort -->
+  <div class="modal" id="modalSort" role="dialog">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container modal-small">
+      <div class="modal-header">
+        <h2>
+          <span class="material-icons-outlined">sort</span>
+          Trier par
+        </h2>
+        <button class="btn-icon modal-close" data-modal="modalSort">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="sort-options">
+          <label class="sort-option">
+            <input type="radio" name="sortBy" value="date_desc" checked /> Plus récent
+          </label>
+          <label class="sort-option">
+            <input type="radio" name="sortBy" value="date_asc" /> Plus ancien
+          </label>
+          <label class="sort-option">
+            <input type="radio" name="sortBy" value="title_asc" /> Titre A→Z
+          </label>
+          <label class="sort-option">
+            <input type="radio" name="sortBy" value="title_desc" /> Titre Z→A
+          </label>
+          <label class="sort-option">
+            <input type="radio" name="sortBy" value="type" /> Type
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnApplySort">Appliquer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Partage -->
+  <div class="modal" id="modalShare" role="dialog">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container modal-small">
+      <div class="modal-header">
+        <h2>
+          <span class="material-icons-outlined">share</span>
+          Partager
+        </h2>
+        <button class="btn-icon modal-close" data-modal="modalShare">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="share-item-info" id="shareItemInfo"></div>
+        <div class="share-options">
+          <button class="share-btn" id="shareNative">
+            <span class="material-icons-outlined">share</span>
+            <span>Partager via...</span>
+          </button>
+          <button class="share-btn" id="shareCopyLink">
+            <span class="material-icons-outlined">content_copy</span>
+            <span>Copier le lien</span>
+          </button>
+          <button class="share-btn" id="shareQR">
+            <span class="material-icons-outlined">qr_code</span>
+            <span>QR Code</span>
+          </button>
+          <button class="share-btn" id="shareWhatsApp">
+            <span class="material-icons-outlined">chat</span>
+            <span>WhatsApp</span>
+          </button>
+          <button class="share-btn" id="shareTelegram">
+            <span class="material-icons-outlined">send</span>
+            <span>Telegram</span>
+          </button>
+        </div>
+        <div class="qr-container hidden" id="qrContainer">
+          <canvas id="qrCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Guide Sync -->
+  <div class="modal" id="modalSyncGuide" role="dialog">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>
+          <span class="material-icons-outlined">sync</span>
+          Guide de synchronisation
+        </h2>
+        <button class="btn-icon modal-close" data-modal="modalSyncGuide">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="sync-guide">
+          <div class="sync-method">
+            <h3><span class="material-icons-outlined">devices</span> Méthode 1 : Export/Import Manuel</h3>
+            <ol>
+              <li>Sur votre appareil source → <strong>Paramètres → Exporter JSON</strong></li>
+              <li>Transférez le fichier (email, cloud, câble...)</li>
+              <li>Sur l'appareil cible → <strong>Paramètres → Importer</strong></li>
+            </ol>
+          </div>
+          <div class="sync-method">
+            <h3><span class="material-icons-outlined">cloud</span> Méthode 2 : Cloud Personnel</h3>
+            <ol>
+              <li>Hébergez l'app sur votre propre serveur (Apache, Nginx)</li>
+              <li>Utilisez une base de données partagée (Firebase, Supabase)</li>
+              <li>Tous vos appareils accèdent à la même URL</li>
+            </ol>
+          </div>
+          <div class="sync-method">
+            <h3><span class="material-icons-outlined">share</span> Méthode 3 : Share Target Android</h3>
+            <ol>
+              <li>Installez LinkVault depuis Chrome Android</li>
+              <li>Sur n'importe quelle page web → Partager → <strong>LinkVault</strong></li>
+              <li>Le lien est ajouté automatiquement !</li>
+            </ol>
+          </div>
+          <div class="sync-method">
+            <h3><span class="material-icons-outlined">computer</span> Méthode 4 : Sur PC</h3>
+            <ol>
+              <li>Ouvrez l'app dans Chrome/Edge</li>
+              <li>Menu navigateur → <strong>Installer LinkVault</strong></li>
+              <li>Utilisez l'export/import pour synchroniser</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Input file caché -->
+  <input type="file" id="importFileInput" accept=".json" style="display:none" />
+
+  <script src="app.js"></script>
+</body>
+</html>
